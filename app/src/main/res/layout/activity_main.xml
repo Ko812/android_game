@@ -1,18 +1,227 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".MainActivity">
 
-    <TextView
-        android:layout_width="wrap_content"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Hello World!"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_weight="1">
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/searchurl"
+            android:layout_width="300dp"
+            android:layout_height="48dp"
+            android:hint="Enter image repository url"
+            app:layout_constraintEnd_toStartOf="@+id/fetchButton"
+            app:layout_constraintHorizontal_bias="0.842"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <Button
+            android:id="@+id/fetchButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="4dp"
+            android:background="#ff33ee66"
+            android:text="Fetch"
+            android:textAlignment="center"
+            android:textColor="#ff221188"
+            android:textSize="16sp"
+            app:cornerRadius="5dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+
+             />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+    <GridLayout
+        android:id="@+id/imagesGrid"
+        android:layout_width="match_parent"
+        android:layout_height="500dp"
+        android:columnCount="4"
+        android:rowCount="5"
+        android:orientation="vertical"
+        app:layout_constraintHeight_percent="0.7"
+        app:layout_constraintBottom_toTopOf="@id/bottomNavigationBar"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent">
+        <ImageButton
+            android:id="@+id/imageView1Button"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            app:layout_constraintWidth_percent="0.25"
+            app:srcCompat="@drawable/num1">
+        </ImageButton>
+        <ImageButton
+            android:id="@+id/imageView2Button"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            app:layout_constraintWidth_percent="0.25"
+            app:srcCompat="@drawable/num2">
+        </ImageButton>
+        <ImageButton
+            android:id="@+id/imageView3Button"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            app:layout_constraintWidth_percent="0.25"
+            app:srcCompat="@drawable/num3">
+        </ImageButton>
+        <ImageButton
+            android:id="@+id/imageView4Button"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            app:layout_constraintWidth_percent="0.25"
+            app:srcCompat="@drawable/num4">
+        </ImageButton>
+        <ImageButton
+            android:id="@+id/imageView5Button"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            app:layout_constraintWidth_percent="0.25"
+            app:srcCompat="@drawable/num5">
+        </ImageButton>
+        <ImageButton
+            android:id="@+id/imageView6Button"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            app:layout_constraintWidth_percent="0.25"
+            app:srcCompat="@drawable/num6">
+        </ImageButton>
+        <ImageButton
+            android:id="@+id/imageView7Button"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            app:srcCompat="@drawable/num7">
+        </ImageButton>
+        <ImageButton
+            android:id="@+id/imageView8Button"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            app:layout_constraintWidth_percent="0.25"
+            app:srcCompat="@drawable/num8">
+        </ImageButton>
+        <ImageButton
+            android:id="@+id/imageView9Button"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            app:layout_constraintWidth_percent="0.25"
+            app:srcCompat="@drawable/num9">
+        </ImageButton>
+        <ImageButton
+            android:id="@+id/imageView10Button"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            app:layout_constraintWidth_percent="0.25"
+            app:srcCompat="@drawable/num10">
+        </ImageButton>
+        <ImageButton
+            android:id="@+id/imageView11Button"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            app:layout_constraintWidth_percent="0.25"
+            app:srcCompat="@drawable/num11">
+        </ImageButton>
+        <ImageButton
+            android:id="@+id/imageView12Button"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            app:layout_constraintWidth_percent="0.25"
+            app:srcCompat="@drawable/num12">
+        </ImageButton>
+
+        <ImageButton
+            android:id="@+id/imageView13Button"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            app:layout_constraintWidth_percent="0.25"
+            app:srcCompat="@drawable/num13"></ImageButton>
+
+        <ImageButton
+            android:id="@+id/imageView14Button"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            app:layout_constraintWidth_percent="0.25"
+            app:srcCompat="@drawable/num14">
+        </ImageButton>
+        <ImageButton
+            android:id="@+id/imageView15Button"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            app:layout_constraintWidth_percent="0.25"
+            app:srcCompat="@drawable/num15">
+        </ImageButton>
+        <ImageButton
+            android:id="@+id/imageView16Button"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            app:layout_constraintWidth_percent="0.25"
+            app:srcCompat="@drawable/num16">
+        </ImageButton>
+        <ImageButton
+            android:id="@+id/imageView17Button"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            app:layout_constraintWidth_percent="0.25"
+            app:layout_constraintHeight_percent="0.2"
+            app:srcCompat="@drawable/num17"
+            android:contentDescription="downloaded img">
+        </ImageButton>
+        <ImageButton
+            android:id="@+id/imageView18Button"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            app:layout_constraintWidth_percent="0.25"
+            app:srcCompat="@drawable/num18">
+        </ImageButton>
+        <ImageButton
+            android:id="@+id/imageView19Button"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            app:layout_constraintWidth_percent="0.25"
+            app:srcCompat="@drawable/num19">
+        </ImageButton>
+        <ImageButton
+            android:id="@+id/imageView20Button"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            app:layout_constraintWidth_percent="0.25"
+            app:srcCompat="@drawable/num20">
+        </ImageButton>
+    </GridLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/bottomNavigationBar"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="center"
+        app:layout_constraintTop_toBottomOf="@id/imagesGrid"
+        app:layout_constraintBottom_toBottomOf="parent">
+        <Button
+            android:id="@+id/startGameButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:padding="12dp"
+            android:text="Start Game"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            tools:layout_editor_absoluteX="148dp"
+            tools:layout_editor_absoluteY="651dp" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
+
+
+</LinearLayout>
