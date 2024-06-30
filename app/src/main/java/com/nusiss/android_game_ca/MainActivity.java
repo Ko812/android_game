@@ -63,6 +63,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         adapter = new CustomAdapter(this);
         fetchButton = findViewById(R.id.fetchButton);
         fetchButton.setOnClickListener(this);
+        Button startGameButton = findViewById(R.id.startGameButton);
+        startGameButton.setOnClickListener(this);
         GridView gridView = findViewById(R.id.downloadedImgs);
         if(gridView != null){
             Log.d("CREATION","gridview setting up");

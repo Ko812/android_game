@@ -76,12 +76,9 @@ public class GameCard {
 
     public void setCardImage(String image){
         this.cardImageName = image;
-        if(!cardImageName.isEmpty()){
-            associateImage(game.context);
-        }
     }
 
-    public void associateImage(Context context){
+    public void bindImage (Context context){
         cardBack.setImageResource(context.getResources().getIdentifier(cardImageName, "drawable", context.getPackageName()));
     }
 }

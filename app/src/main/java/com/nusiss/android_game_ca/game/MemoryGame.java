@@ -2,6 +2,7 @@ package com.nusiss.android_game_ca.game;
 
 import android.animation.AnimatorSet;
 import android.content.Context;
+import android.util.Log;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -13,7 +14,6 @@ import java.util.Random;
 
 public class MemoryGame {
 
-    public Context context;
     private Random rand;
     private List<GameCard> gameCards;
     private int currentScore = 0;
@@ -80,9 +80,6 @@ public class MemoryGame {
 
     public void gainScore(){
         currentScore++;
-        if(currentScore == 6){
-            Toast.makeText(context, "Game complete! You won!", Toast.LENGTH_LONG).show();
-        }
     }
 
     public GameCard findGameCardById(int id){
@@ -91,5 +88,11 @@ public class MemoryGame {
                 .filter(gc -> gc.getId() == id)
                 .findFirst()
                 .get();
+    }
+
+    public void BindImagesToCard(Context context){
+        for(GameCard card : gameCards){
+            card.bindImage(context);
+        }
     }
 }

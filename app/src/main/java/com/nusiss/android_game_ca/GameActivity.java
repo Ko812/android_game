@@ -42,7 +42,17 @@ public class GameActivity extends AppCompatActivity {
         SetupAnimators();
         memoryGame = new MemoryGame(BuildGameCards(cardAnimator.getScale()), (int)(LocalDateTime.now().toEpochSecond(ZoneOffset.ofHours(2)) % 1000), this);
         memoryGame.SetupCardClickListener(cardAnimator);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
         memoryGame.Start();
+        if(this != null){
+            Log.d("OnStart", "Binding images at this step");
+            memoryGame.BindImagesToCard(this);
+        }
+
     }
 
     // Builds 12 game cards
