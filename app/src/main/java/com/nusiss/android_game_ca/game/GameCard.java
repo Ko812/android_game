@@ -2,14 +2,20 @@ package com.nusiss.android_game_ca.game;
 
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.nusiss.android_game_ca.animators.CardAnimator;
 
+import java.util.List;
+
+import coil.ImageLoader;
+import coil.request.ImageRequest;
+
 public class GameCard {
     private int id;
-    private String cardImageName;
+    private int imageIndex;
     TextView cardFront;
 
     ImageButton cardBack;
@@ -23,7 +29,7 @@ public class GameCard {
         this.isFlipped = false;
         this.cardFront = cardFront;
         this.cardBack = cardBack;
-        this.cardImageName = "";
+        this.imageIndex = 0;
     }
 
     public void setCameraDistance(float scale){
@@ -70,15 +76,16 @@ public class GameCard {
         isFlipped = false;
     }
 
-    public String getCardImage(){
-        return cardImageName;
+    public int getCardImageIndex(){
+        return imageIndex;
     }
 
-    public void setCardImage(String image){
-        this.cardImageName = image;
+    public void setCardImageIndex(int index){
+        this.imageIndex = index;
     }
 
-    public void bindImage (Context context){
-        cardBack.setImageResource(context.getResources().getIdentifier(cardImageName, "drawable", context.getPackageName()));
+    public void bindImage (ImageLoader loader, ImageRequest.Builder builder){
+        loader.enqueue(builder.target(cardBack).build());
     }
+
 }

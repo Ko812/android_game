@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
 
@@ -30,36 +31,40 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
+import coil.ComponentRegistry;
 import coil.ImageLoader;
+import coil.request.Disposable;
 import coil.request.ImageRequest;
+import kotlin.Unit;
+import kotlinx.coroutines.Job;
 
 
 public class CustomAdapter extends BaseAdapter {
 
     private Context context;
 
-    private final String[] urls = {
-            "https://cdn.stocksnap.io/img-thumbs/280h/beach-sunset_QDGNZDRHZK.jpg",
-            "https://cdn.stocksnap.io/img-thumbs/280h/garden-plants_HNMAUHKDMN.jpg"
-    };
+    private ProgressBar bar;
 
+    private ImageLoader loader;
+    private String[] urls;
+    private List<Job> loadingJobs;
 
-    private final String[] images = {
-            "num1", "num2", "num3", "num4", "num5", "num6", "num7", "num8", "num9", "num10",
-            "num11", "num12", "num13", "num14", "num15", "num16", "num17", "num18", "num19", "num20"
-    };
-
-
-    public CustomAdapter(Context context){
+    public CustomAdapter(Context context, String[] urls, ProgressBar bar){
         super();
         this.context = context;
+        this.urls = urls;
+        this.loader = new ImageLoader.Builder(context).build();
+        this.loadingJobs = new ArrayList<>();
+        this.bar = bar;
     }
 
     @Override
     public int getCount() {
-        return images.length;
+        return 20;
     }
 
     @Override
@@ -81,16 +86,46 @@ public class CustomAdapter extends BaseAdapter {
         ImageView imgView = (ImageView) view;
 
         try{
-            ImageLoader loader = new ImageLoader.Builder(context).build();
             ImageRequest request = new ImageRequest
                     .Builder(context)
-                    .data(urls[0])
+                    .data(urls[pos % 7])
                     .target(imgView)
                     .build();
-            loader.enqueue(request);
+            Job loadingJob = loader.enqueue(request).getJob();
+            loadingJobs.add(loadingJob);
+//            loadingJob.invokeOnCompletion(e -> {
+//                Log.d("LoadingComplete", "Loaded 1 job");
+//                if(loadingComplete()){
+//                    bar.setVisibility(View.INVISIBLE);
+//                    bar.invalidate();
+//                } else {
+//                    bar.incrementProgressBy(5);
+//                }
+//                return Unit.INSTANCE;
+//            });
+//            loadingJobs.add(loadingJob);
+
         } catch(Exception e){
             Log.d("Resource", "Exception thrown when loading drawable resource " + e.getMessage());
         }
         return imgView;
     }
+
+    private boolean loadingComplete(){
+        Log.d("CheckingLoadProgess", "Load progress: "+ loadingJobs.stream().map(j -> j.isCompleted()).filter(c -> c).count() + " jobs completed, out of " + loadingJobs.stream().count());
+        return loadingJobs
+                .stream()
+                .map(j -> j.isCompleted())
+                .reduce((c1, c2) -> c1 && c2)
+                .get();
+    }
+
+    public int loadingProgress(){
+        if(loadingJobs.isEmpty()){
+            return 100;
+        }
+        return (int)(loadingJobs.stream().map(j -> j.isCompleted()).count() / loadingJobs.size() * 100);
+    }
+
+
 }

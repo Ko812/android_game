@@ -28,8 +28,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import coil.ImageLoader;
+
 public class GameActivity extends AppCompatActivity {
 
+    private ImageLoader loader;
     private Map<Integer, Integer> cardPairIds = new HashMap<>();
     MemoryGame memoryGame;
     private CardAnimator cardAnimator;
@@ -38,19 +41,31 @@ public class GameActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
+        loader = new ImageLoader.Builder(this).build();
         MapCards();
         SetupAnimators();
-        memoryGame = new MemoryGame(BuildGameCards(cardAnimator.getScale()), (int)(LocalDateTime.now().toEpochSecond(ZoneOffset.ofHours(2)) % 1000), this);
+        memoryGame = new MemoryGame(
+                BuildGameCards(cardAnimator.getScale()),  // initialized 12 game cards
+                (int)(LocalDateTime.now().toEpochSecond(ZoneOffset.ofHours(2)) % 1000), // seed for randomizer
+                (TextView)findViewById(R.id.scoreBar) // status bar view
+        );
         memoryGame.SetupCardClickListener(cardAnimator);
     }
+
 
     @Override
     protected void onStart() {
         super.onStart();
         memoryGame.Start();
         if(this != null){
-            Log.d("OnStart", "Binding images at this step");
-            memoryGame.BindImagesToCard(this);
+            Intent callerIntent = getIntent();
+            String url0 = callerIntent.getStringExtra("url_0");
+            String url1 = callerIntent.getStringExtra("url_1");
+            String url2 = callerIntent.getStringExtra("url_2");
+            String url3 = callerIntent.getStringExtra("url_3");
+            String url4 = callerIntent.getStringExtra("url_4");
+            String url5 = callerIntent.getStringExtra("url_5");
+            memoryGame.BindImagesToCard(this, loader, new String[]{url0, url1, url2, url3, url4, url5});
         }
 
     }
