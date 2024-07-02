@@ -7,6 +7,7 @@ import android.animation.AnimatorInflater;
 import android.animation.AnimatorSet;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -37,6 +38,10 @@ public class GameActivity extends AppCompatActivity {
     MemoryGame memoryGame;
     private CardAnimator cardAnimator;
 
+    private Button returnBtn;
+    private Button startBtn;
+    private Button stopBtn;
+    private Button resetBtn;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,6 +55,14 @@ public class GameActivity extends AppCompatActivity {
                 (TextView)findViewById(R.id.scoreBar) // status bar view
         );
         memoryGame.SetupCardClickListener(cardAnimator);
+        startBtn = findViewById(R.id.startBtn);
+        startBtn.setOnClickListener(this::clickStartBtn);
+        stopBtn = findViewById(R.id.stopBtn);
+        stopBtn.setOnClickListener(this::clickStopBtn);
+        resetBtn = findViewById(R.id.resetBtn);
+        stopBtn.setOnClickListener(this::clickStopBtn);
+        returnBtn = findViewById(R.id.returnBtn);
+        returnBtn.setOnClickListener(this::clickReturnBtn);
     }
 
 
@@ -107,4 +120,45 @@ public class GameActivity extends AppCompatActivity {
 
         cardAnimator = new CardAnimator(scale, frontAnimator, backAnimator);
     }
+
+    private void clickReturnBtn(View view){
+
+    }
+
+    private void clickStartBtn(View view){
+        // enable stop button
+        stopBtn.setEnabled(true);
+        startBtn.setEnabled(false);
+        startTimer();
+    }
+
+    private void clickResetBtn(View view){
+        memoryGame.Start();
+        TextView txtView = findViewById(R.id.timeElapsedText);
+    }
+
+    private void clickStopBtn(View view){
+        if(handler != null){
+            handler.removeCallbacksAndMessages(null);
+        }
+        startBtn.setEnabled(true);
+        stopBtn.setEnabled(false);
+    }
+
+    private Handler handler;
+    private void startTimer() {
+        final TextView txtTime = findViewById(R.id.timeElapsedText);
+        if(handler == null){
+            handler = new Handler();
+        }
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                memoryGame.lapsedOneSecond();
+                txtTime.setText("Elapsed " + memoryGame.getMinuteElapsed() + ":" + memoryGame.getSecondsPortionOfElapsed());
+                handler.postDelayed(this, 1000);
+            }
+        });
+    }
+
 }

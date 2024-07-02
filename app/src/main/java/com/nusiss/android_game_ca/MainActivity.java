@@ -2,12 +2,14 @@ package com.nusiss.android_game_ca;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.GridView;
@@ -70,7 +72,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             TextInputEditText searchInput = findViewById(R.id.searchurl);
             String url = searchInput.getText().toString();
             tryFetch(url);
-
+            InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         } else if(id == R.id.startGameButton){
             if(selectedUrls.size() < 6){
                 Toast.makeText(this, "Require 6 images to start game.", Toast.LENGTH_LONG).show();

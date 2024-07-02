@@ -1,7 +1,6 @@
 package com.nusiss.android_game_ca.game;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.widget.TextView;
 
 import com.nusiss.android_game_ca.animators.CardAnimator;
@@ -18,7 +17,7 @@ public class MemoryGame {
     private List<GameCard> gameCards;
     private int currentScore;
     public int flippedCardId = 0;
-
+    public int secondsElapsed = 0;
     private TextView scoreBar;
 
     public MemoryGame(List<GameCard> gameCards, int seed, TextView scoreBar)  {
@@ -55,6 +54,8 @@ public class MemoryGame {
 
     private void Reset(){
         currentScore = 0;
+        flippedCardId = 0;
+        secondsElapsed = 0;
         for(GameCard card : gameCards){
             if(card.isFlipped){
                 card.unflip();
@@ -104,5 +105,29 @@ public class MemoryGame {
             ImageRequest.Builder builder = new ImageRequest.Builder(context).data(urls[card.getCardImageIndex()]);
             card.bindImage(loader, builder);
         }
+    }
+
+    public int getSecondsElapsed() {
+        return secondsElapsed;
+    }
+
+    public void setSecondsElapsed(int secondsElapsed) {
+        this.secondsElapsed = secondsElapsed;
+    }
+
+    public int getMinuteElapsed(){
+        return (getSecondsElapsed() - (getSecondsElapsed() % 60)) / 60;
+    }
+
+    public String getSecondsPortionOfElapsed(){
+        int sec = getSecondsElapsed() % 60;
+        if(sec < 10){
+            return "0" + sec;
+        }
+        return "" + sec;
+    }
+
+    public void lapsedOneSecond(){
+        secondsElapsed++;
     }
 }

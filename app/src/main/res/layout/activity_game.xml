@@ -25,9 +25,10 @@
             android:textColor="#FFCCFF"
             android:layout_marginRight="10dp"/>
         <TextView
+            android:id="@+id/timeElapsedText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Time elapsed: 3:45"
+            android:text="Elapsed: 0:00"
             android:textSize="24sp"
             android:textColor="#FFCCFF"
             android:layout_marginLeft="10dp"/>
@@ -409,10 +410,35 @@
         android:gravity="center"
         android:orientation="horizontal">
         <Button
-            android:id="@+id/flipBtn"
+            android:id="@+id/returnBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Stop" />
+            android:background="#ff3355bb"
+            android:layout_margin="10dp"
+            android:text="Return" />
+        <Button
+            android:id="@+id/startBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="#ff3355bb"
+            android:layout_margin="10dp"
+            android:text="Start Game"
+            />
+        <Button
+            android:id="@+id/stopBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="#ff3355bb"
+            android:layout_margin="10dp"
+            android:text="Stop"
+            />
+        <Button
+            android:id="@+id/resetBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="#ff3355bb"
+            android:layout_margin="10dp"
+            android:text="Reset"/>
     </LinearLayout>
 
 </LinearLayout>
