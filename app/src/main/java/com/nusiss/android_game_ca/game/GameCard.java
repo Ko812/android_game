@@ -29,7 +29,7 @@ public class GameCard {
         this.isFlipped = false;
         this.cardFront = cardFront;
         this.cardBack = cardBack;
-        this.imageIndex = 0;
+        this.imageIndex = -1;
     }
 
     public void setCameraDistance(float scale){

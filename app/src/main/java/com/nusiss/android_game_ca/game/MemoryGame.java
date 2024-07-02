@@ -45,7 +45,7 @@ public class MemoryGame {
                 .stream()
                 .filter(gc -> gc.getCardImageIndex() == imageIndex)
                 .count();
-        return countCards == 2;
+        return countCards >= 2;
     }
 
     public void Start(){
