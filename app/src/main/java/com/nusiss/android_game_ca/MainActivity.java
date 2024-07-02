@@ -1,79 +1,58 @@
 package com.nusiss.android_game_ca;
 
-import androidx.annotation.ColorInt;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.util.DebugUtils;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 import android.content.Intent;
-import android.database.DataSetObserver;
 import android.graphics.Color;
-import android.graphics.ImageDecoder;
-import android.graphics.drawable.Drawable;
-import android.net.Uri;
-import android.opengl.GLES32;
 import android.os.Bundle;
-import android.os.Debug;
-import android.text.Editable;
+import android.os.Handler;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.GridView;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.android.material.textfield.TextInputEditText;
-import com.nusiss.android_game_ca.adapters.CustomAdapter;
+import com.nusiss.android_game_ca.adapters.GridAdapter;
 
-import java.io.BufferedInputStream;
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.Serializable;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.time.Duration;
 import java.util.ArrayList;
-import java.util.HexFormat;
 import java.util.List;
-import java.net.URLConnection;
 
 import coil.ImageLoader;
+import coil.request.ImageRequest;
+
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     Button fetchButton;
-    private CustomAdapter adapter;
+    private GridAdapter adapter;
     private ArrayList<String> selectedUrls = new ArrayList<>();
 
-    private final String[] urls = {
-            "https://cdn.stocksnap.io/img-thumbs/280h/beach-sunset_QDGNZDRHZK.jpg",
-            "https://cdn.stocksnap.io/img-thumbs/280h/garden-plants_HNMAUHKDMN.jpg",
-            "https://cdn.stocksnap.io/img-thumbs/280h/yellow-flower_WUORV2UBUI.jpg",
-            "https://cdn.stocksnap.io/img-thumbs/280h/senior-couple_IJV0VL7FAG.jpg",
-            "https://cdn.stocksnap.io/img-thumbs/280h/city-lights_OY811SXWQW.jpg",
-            "https://cdn.stocksnap.io/img-thumbs/280h/senior-people_HFSNYZP8LE.jpg",
-            "https://cdn.stocksnap.io/img-thumbs/280h/sea-sky_IXHJ4316GH.jpg"
-    };
+    private List<String> urls = new ArrayList<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         setupButtonsAndAdapter();
-
+//        loadImg();
     }
 
     private void setupButtonsAndAdapter(){
         ProgressBar bar = (ProgressBar) findViewById(R.id.determinateBar);
-        adapter = new CustomAdapter(this, urls, bar);
+        adapter = new GridAdapter(this, urls);
         fetchButton = findViewById(R.id.fetchButton);
         fetchButton.setOnClickListener(this);
         Button startGameButton = findViewById(R.id.startGameButton);
@@ -82,7 +61,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if(gridView != null){
             gridView.setAdapter(adapter);
             gridView.setOnItemClickListener(this::onItemClick);
-
         }
     }
     @Override
@@ -91,25 +69,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (id == R.id.fetchButton) {
             TextInputEditText searchInput = findViewById(R.id.searchurl);
             String url = searchInput.getText().toString();
-            try {
-                HttpURLConnection con = (HttpURLConnection) new URL(url).openConnection();
-                con.setRequestProperty("User-Agent", "Mozilla/5.0 (iPhone; CPU iPhone OS 13_5_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1.1 Mobile/15E148 Safari/604.1");
-                int responseCode = con.getResponseCode();
-                if(responseCode != HttpURLConnection.HTTP_OK){
-                    Toast.makeText(this, "Not able to fetch content of url " + url, Toast.LENGTH_LONG).show();
-                } else {
-                    StringBuffer sb = new StringBuffer();
-                    BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream()));
-                    String x;
-                    while((x = br.readLine()) != null){
-                        sb.append(x);
-                    }
-                    Log.d("HttpResponse", sb.toString());
-                }
-            } catch(IOException ioexception){
-                ioexception.printStackTrace();
-                Toast.makeText(this, "Not able to fetch content of url " + url + ". " + ioexception.getMessage(), Toast.LENGTH_LONG).show();
-            }
+            tryFetch(url);
 
         } else if(id == R.id.startGameButton){
             if(selectedUrls.size() < 6){
@@ -130,19 +90,49 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     public void onItemClick(AdapterView adapterView, View view, int pos, long id){
-//        adapter.
-//        Drawable imgvDrawable = ((ImageView) view).get();
-        if(!selectedUrls.contains(urls[pos % 7])){
+        if(!selectedUrls.contains(urls.get(pos))){
             if(selectedUrls.size() < 6){
-                selectedUrls.add(urls[pos % 7]);
+                selectedUrls.add(urls.get(pos));
                 Toast.makeText(this, "Added 1 image for the game.", Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(this, "You have already selected 6 images.", Toast.LENGTH_LONG).show();
             }
         } else {
-            selectedUrls.remove(urls[pos % 7]);
+            selectedUrls.remove(urls.get(pos));
         }
     }
 
+    private void tryFetch(String url){
+        urls = new ArrayList<String>();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Document doc = Jsoup.connect(url).get();
+                    Elements links = doc.select("img[src]");
+                    for (Element link : links) {
+                        if(link.attr("src").startsWith("https://cdn.") && link.attr("src").endsWith("jpg")){
+                            urls.add(link.attr("src"));
+                        }
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+
+                } catch(Exception e){
+                    Log.d("FETCH", "Exception on fetching " + url);
+                }
+
+                runOnUiThread(new Runnable(){
+                    @Override
+                    public void run(){
+                        adapter.setUrls(urls);
+                        adapter.notifyDataSetChanged();
+                        Log.d("ADAPTER", "Adapter changed");
+                    }
+                });
+
+            }
+        }).start();
+    }
 
 }
