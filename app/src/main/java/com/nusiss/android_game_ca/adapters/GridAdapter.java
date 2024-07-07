@@ -4,6 +4,7 @@ import static java.lang.Math.min;
 
 import android.app.Activity;
 import android.content.Context;
+
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,6 +23,7 @@ import coil.ImageLoader;
 import coil.request.ImageRequest;
 import kotlinx.coroutines.Job;
 
+
 public class GridAdapter extends BaseAdapter {
 
     private Context context;
@@ -38,6 +40,7 @@ public class GridAdapter extends BaseAdapter {
         this.loader = new ImageLoader.Builder(context).build();
         this.loadingJobs = new ArrayList<>();
     }
+
 
     @Override
     public int getCount() {
@@ -85,6 +88,7 @@ public class GridAdapter extends BaseAdapter {
     public List<Integer> getViewIds(){
         return viewIds;
     }
+
 
     public void setUrls(List<String> urls){
         this.urls = urls;

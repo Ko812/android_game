@@ -15,11 +15,11 @@ import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.textfield.TextInputEditText;
 import com.nusiss.android_game_ca.adapters.GridAdapter;
+
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -37,11 +37,11 @@ import java.util.List;
 import coil.ImageLoader;
 import coil.request.ImageRequest;
 
+
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     Button fetchButton;
     private GridAdapter adapter;
     private ArrayList<String> selectedUrls = new ArrayList<>();
-    private TextView selectedCountTextView;
 
     private List<String> urls = new ArrayList<>();
     @Override
@@ -65,28 +65,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             gridView.setOnItemClickListener(this::onItemClick);
         }
     }
-
-    private void showSelectedCountTextView() {
-        if (selectedCountTextView == null) {
-            selectedCountTextView = findViewById(R.id.selectedCountTextView);
-        }
-        selectedCountTextView.setVisibility(View.VISIBLE);
-
-        // Update selected count TextView initially
-        updateSelectedCountTextView();
-    }
-
-    private void updateSelectedCountTextView() {
-        if (selectedCountTextView == null) {
-            return; // TextView not initialized yet
-        }
-
-        int selectedCount = selectedUrls.size();
-        int totalImages = 6; // Total number of images required for the game
-        String countText = selectedCount + " of " + totalImages + " selected";
-        selectedCountTextView.setText(countText);
-    }
-
     @Override
     public void onClick(View view){
         int id = view.getId();
@@ -96,7 +74,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             tryFetch(url);
             InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-            showSelectedCountTextView();    //only pop up after clicking "Fetch"
         } else if(id == R.id.startGameButton){
             if(selectedUrls.size() < 6){
                 Toast.makeText(this, "Require 6 images to start game.", Toast.LENGTH_LONG).show();
@@ -116,22 +93,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     public void onItemClick(AdapterView adapterView, View view, int pos, long id){
-        ImageView imgView = (ImageView) view;
-
         if(!selectedUrls.contains(urls.get(pos))){
             if(selectedUrls.size() < 6){
                 selectedUrls.add(urls.get(pos));
-                imgView.setColorFilter(Color.argb(150, 255, 255, 0));
-                updateSelectedCountTextView();
                 Toast.makeText(this, "Added 1 image for the game.", Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(this, "You have already selected 6 images.", Toast.LENGTH_LONG).show();
             }
         } else {
             selectedUrls.remove(urls.get(pos));
-            imgView.clearColorFilter();
-            updateSelectedCountTextView();
-            Toast.makeText(this, "Removed 1 image.", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -163,7 +133,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         Log.d("ADAPTER", "Adapter changed");
                     }
                 });
+
             }
         }).start();
     }
+
 }
