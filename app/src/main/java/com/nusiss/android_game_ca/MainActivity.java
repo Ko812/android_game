@@ -139,7 +139,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void run(){
                 try {
-                    Document doc = Jsoup.connect(url).get();
+                    Document doc = Jsoup.connect("https://stocksnap.io").get();
                     Elements links = doc.select("img[src]");
                     for (int i = 0; i < links.size(); i++) {
                         Element link = links.get(i);

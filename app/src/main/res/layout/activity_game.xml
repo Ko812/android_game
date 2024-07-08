@@ -13,25 +13,43 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:orientation="horizontal"
+        android:orientation="vertical"
         android:background="#220033"
         android:gravity="center_vertical">
         <TextView
-            android:id="@+id/scoreBar"
+            android:id="@+id/record"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Matched: 0 of 6"
-            android:textSize="24sp"
-            android:textColor="#FFCCFF"
-            android:layout_marginRight="10dp"/>
+            tools:text="player: Elapsed: 0:00"
+            android:textSize="14sp"
+            android:textColor="#FFCCFF"/>
         <TextView
-            android:id="@+id/timeElapsedText"
+            android:id="@+id/currentUser"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Elapsed: 0:00"
-            android:textSize="24sp"
-            android:textColor="#FFCCFF"
-            android:layout_marginLeft="10dp"/>
+            tools:text="Current Player：player"
+            android:textSize="20sp"
+            android:textColor="#FFCCFF"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:id="@+id/scoreBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Matched: 0 of 6"
+                android:textSize="24sp"
+                android:textColor="#FFCCFF"
+                android:layout_marginRight="10dp"/>
+            <TextView
+                android:id="@+id/timeElapsedText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Elapsed: 0:00"
+                android:textSize="24sp"
+                android:textColor="#FFCCFF"
+                android:layout_marginLeft="10dp"/>
+        </LinearLayout>
     </LinearLayout>
 
     <LinearLayout
@@ -415,8 +433,12 @@
             android:layout_height="wrap_content"
             android:background="#ff3355bb"
             android:layout_margin="10dp"
+
             android:layout_weight="1"
-            android:text="Return" />
+            
+
+            android:text="Back" />
+
         <Button
             android:id="@+id/startBtn"
             android:layout_width="0dp"
