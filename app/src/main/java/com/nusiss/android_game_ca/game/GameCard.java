@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.os.Handler;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.nusiss.android_game_ca.animators.CardAnimator;
 
@@ -36,6 +37,10 @@ public class GameCard {
 
     public void setCardClickListener(CardAnimator animator){
         cardBack.setOnClickListener(view -> {
+            if(!game.isGameStarted()){
+                Toast.makeText(cardBack.getContext(), "Please start the game first.", Toast.LENGTH_SHORT).show();
+                return;
+            }
             if(isFlipped){
                 return;
             } else {

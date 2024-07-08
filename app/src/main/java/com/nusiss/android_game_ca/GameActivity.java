@@ -3,7 +3,6 @@ package com.nusiss.android_game_ca;
 import androidx.appcompat.app.AppCompatActivity;
 import android.media.MediaPlayer;
 
-import android.animation.Animator;
 import android.animation.AnimatorInflater;
 import android.animation.AnimatorSet;
 import android.app.AlertDialog;
@@ -11,24 +10,19 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.nusiss.android_game_ca.animators.CardAnimator;
-import com.nusiss.android_game_ca.exceptions.InvalidGameSetupException;
 import com.nusiss.android_game_ca.game.GameCard;
 import com.nusiss.android_game_ca.game.MemoryGame;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,16 +37,18 @@ public class GameActivity extends AppCompatActivity implements MemoryGame.Action
 
     private Button returnBtn;
     private Button startBtn;
-    private Button stopBtn;
+    private Button pauseBtn;
     private Button resetBtn;
     private Handler handler;
 
     private TextView record;
     private TextView tvUser;
     private TextView scoreBar;
-    private Map<String, Integer> recordMap = new HashMap<>();
+    private TextView txtTime;
+//    private Map<String, Integer> recordMap = new HashMap<>();
     private boolean isGaming = false;
     private String currentUser;
+
     private String[] urls;
     private MediaPlayer victorySound;
 
@@ -61,34 +57,35 @@ public class GameActivity extends AppCompatActivity implements MemoryGame.Action
         scoreBar.setText("Matched: "+score+" of 6");
         if(score == 6){
             startBtn.setEnabled(true);
-            stopBtn.setEnabled(false);
+            pauseBtn.setEnabled(false);
             isGaming = false;
             scoreBar.setText("Matched: 6 of 6.");
             if(handler != null){
                 handler.removeCallbacksAndMessages(null);
             }
-            recordMap.put(currentUser, memoryGame.getSecondsElapsed());
-            //找出赢家，用时短的获胜
-            //Find the winner. The one with the shortest time wins.
-            String winUser = "";
-            int minValue = Integer.MAX_VALUE;
-
-            StringBuilder stringBuilder = new StringBuilder();
-            for (Map.Entry<String, Integer> entry : recordMap.entrySet()) {
-                if (entry.getValue() <= minValue) {
-                    minValue = entry.getValue();
-                    winUser = entry.getKey();
-                }
-                stringBuilder.append("Player：").append(entry.getKey()).append(getFormatTime(entry.getValue()))
-                        .append(",");
-            }
-            String result = stringBuilder.toString();
-            if (result.endsWith(",")) {
-                result = result.substring(0, result.length() - 1);
-            }
-            record.setText(result + " win is " + winUser);
+//            recordMap.put(currentUser, memoryGame.getSecondsElapsed());
+//            //找出赢家，用时短的获胜
+//            //Find the winner. The one with the shortest time wins.
+//            String winUser = "";
+//            int minValue = Integer.MAX_VALUE;
+//
+//            StringBuilder stringBuilder = new StringBuilder();
+//            for (Map.Entry<String, Integer> entry : recordMap.entrySet()) {
+//                if (entry.getValue() <= minValue) {
+//                    minValue = entry.getValue();
+//                    winUser = entry.getKey();
+//                }
+//                stringBuilder.append("Player：").append(entry.getKey()).append(getFormatTime(entry.getValue()))
+//                        .append(",");
+//            }
+//            String result = stringBuilder.toString();
+//            if (result.endsWith(",")) {
+//                result = result.substring(0, result.length() - 1);
+//            }
+            record.setText("Player " + currentUser + " won in " + memoryGame.getSecondsElapsed() + " secs.");
 
             onGameWin();
+            pauseBtn.setEnabled(false);
         }
     }
 
@@ -117,23 +114,24 @@ public class GameActivity extends AppCompatActivity implements MemoryGame.Action
         memoryGame.SetupCardClickListener(cardAnimator);
         startBtn = findViewById(R.id.startBtn);
         startBtn.setOnClickListener(this::clickStartBtn);
-        stopBtn = findViewById(R.id.stopBtn);
-        stopBtn.setOnClickListener(this::clickStopBtn);
+        pauseBtn = findViewById(R.id.pauseBtn);
+        pauseBtn.setOnClickListener(this::clickPauseBtn);
         resetBtn = findViewById(R.id.resetBtn);
         resetBtn.setOnClickListener(this::clickResetBtn);
-        stopBtn.setOnClickListener(this::clickStopBtn);
+        pauseBtn.setOnClickListener(this::clickPauseBtn);
         returnBtn = findViewById(R.id.returnBtn);
         returnBtn.setOnClickListener(this::clickReturnBtn);
         record = findViewById(R.id.record);
         tvUser = findViewById(R.id.currentUser);
         scoreBar = findViewById(R.id.scoreBar);
+        txtTime = findViewById(R.id.timeElapsedText);
     }
 
 
     @Override
     protected void onStart() {
         super.onStart();
-        memoryGame.Start();
+        memoryGame.SetupGame();
         if(this != null){
             Intent callerIntent = getIntent();
             String url0 = callerIntent.getStringExtra("url_0");
@@ -142,8 +140,8 @@ public class GameActivity extends AppCompatActivity implements MemoryGame.Action
             String url3 = callerIntent.getStringExtra("url_3");
             String url4 = callerIntent.getStringExtra("url_4");
             String url5 = callerIntent.getStringExtra("url_5");
-
-            memoryGame.BindImagesToCard(this, new String[]{url0, url1, url2, url3, url4, url5});
+            urls = new String[]{url0, url1, url2, url3, url4, url5};
+            memoryGame.BindImagesToCard(this, urls);
 
         }
 
@@ -203,19 +201,23 @@ public class GameActivity extends AppCompatActivity implements MemoryGame.Action
             final EditText input = new EditText(this);
             builder.setView(input);
 
-            // 设置对话框按钮
             // Setting up the dialogue box buttons
             builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     currentUser = input.getText().toString();
-                    recordMap.put(currentUser, 0);
+//                    recordMap.put(currentUser, 0);
                     isGaming = true;
                     startBtn.setEnabled(false);
                     tvUser.setText("Current Player：" + currentUser);
-                    memoryGame.Start();
+                    scoreBar.setText("Matched: 0 of 6.");
+                    txtTime.setText("Elapsed " + memoryGame.getMinuteElapsed() + ":" + memoryGame.getSecondsPortionOfElapsed());
+                    memoryGame.SetupGame();
+                    memoryGame.setGameStarted(true);
                     memoryGame.BindImagesToCard(GameActivity.this, urls);
                     startTimer();
+                    resetBtn.setEnabled(true);
+                    pauseBtn.setEnabled(true);
                 }
             });
 
@@ -232,16 +234,29 @@ public class GameActivity extends AppCompatActivity implements MemoryGame.Action
     }
 
     private void clickResetBtn(View view){
-        memoryGame.Start();
-        TextView txtView = findViewById(R.id.timeElapsedText);
+        memoryGame.SetupGame();
+        memoryGame.BindImagesToCard(this, urls);
+        memoryGame.setGameStarted(true);
+        scoreBar.setText("Matched: 0 of 6.");
+        startTimer();
+        txtTime.setText("Elapsed " + memoryGame.getMinuteElapsed() + ":" + memoryGame.getSecondsPortionOfElapsed());
+        pauseBtn.setEnabled(true);
+        startBtn.setEnabled(false);
     }
 
-    private void clickStopBtn(View view){
+    private void clickPauseBtn(View view){
         if(handler != null){
             handler.removeCallbacksAndMessages(null);
         }
-        startBtn.setEnabled(true);
-        stopBtn.setEnabled(false);
+        if(pauseBtn.getText().toString().equals("Pause")){
+            memoryGame.setGameStarted(false);
+            pauseBtn.setText("Resume");
+        } else {
+            startTimer();
+            memoryGame.setGameStarted(true);
+            pauseBtn.setText("Pause");
+        }
+
     }
     private void startTimer() {
         final TextView txtTime = findViewById(R.id.timeElapsedText);

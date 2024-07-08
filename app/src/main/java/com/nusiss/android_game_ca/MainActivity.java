@@ -113,13 +113,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             view.setBackgroundColor(Color.TRANSPARENT);
             imgView.clearColorFilter();
             updateSelectedCountTextView();
-            Toast.makeText(this, "Removed 1 image.", Toast.LENGTH_SHORT).show();
         } else if(selectedUrls.size() < 6){
             selectedUrls.add(clickedUrl);
             view.setBackgroundColor(Color.parseColor("#ffcceecc"));
             imgView.setColorFilter(Color.argb(150, 255, 255, 0));
             updateSelectedCountTextView();
-            Toast.makeText(this, "Added 1 image.", Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(this, "You have already selected 6 images.", Toast.LENGTH_SHORT).show();
         }

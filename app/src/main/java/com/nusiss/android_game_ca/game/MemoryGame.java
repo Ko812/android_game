@@ -28,6 +28,8 @@ public class MemoryGame {
 
     private int isSecondCardFlipped = 0;
     public int secondsElapsed = 0;
+
+    private boolean isGameStarted = false;
     private TextView scoreBar;
     private ActionListener mActionListener;
     private CardAnimator cardAnimator;
@@ -67,12 +69,6 @@ public class MemoryGame {
             } while (paired(imageIndices[randomImage]));
             card.setCardImageIndex(imageIndices[randomImage]);
         }
-        gameCards.forEach(new Consumer<GameCard>() {
-            @Override
-            public void accept(GameCard gameCard) {
-                Log.d("aa", gameCard.getCardImageIndex() +"");
-            }
-        });
     }
 
     private boolean paired(int imageIndex){
@@ -83,7 +79,7 @@ public class MemoryGame {
         return countCards >= 2;
     }
 
-    public void Start(){
+    public void SetupGame(){
         Reset();
         Initialize();
     }
@@ -231,5 +227,13 @@ public class MemoryGame {
 
     public int getIsSecondCardFlipped(){
         return isSecondCardFlipped;
+    }
+
+    public boolean isGameStarted() {
+        return isGameStarted;
+    }
+
+    public void setGameStarted(boolean gameStarted) {
+        isGameStarted = gameStarted;
     }
 }
