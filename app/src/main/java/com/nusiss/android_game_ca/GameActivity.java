@@ -214,7 +214,7 @@ public class GameActivity extends AppCompatActivity implements MemoryGame.Action
                     startBtn.setEnabled(false);
                     tvUser.setText("Current Player：" + currentUser);
                     memoryGame.Start();
-                    memoryGame.BindImagesToCard(GameActivity.this, loader, urls);
+                    memoryGame.BindImagesToCard(GameActivity.this, urls);
                     startTimer();
                 }
             });

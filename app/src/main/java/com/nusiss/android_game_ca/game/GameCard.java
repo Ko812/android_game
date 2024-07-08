@@ -2,9 +2,8 @@ package com.nusiss.android_game_ca.game;
 
 
 import android.app.Activity;
-import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
+import android.os.Handler;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
@@ -40,23 +39,33 @@ public class GameCard {
             if(isFlipped){
                 return;
             } else {
-                animator.flipCard(cardFront, cardBack, 0L);
-                isFlipped = true;
                 int flippedCardId = game.getFlippedCardId();
                 if(flippedCardId == 0){
+                    animator.flipCard(cardFront, cardBack, 0L, null);
+                    isFlipped = true;
                     game.setFlippedCardId(this.id);
                     return;
-                } else {
+                } else if(game.getIsSecondCardFlipped() == MemoryGame.SecondCardIsNotFlipped ){
+                    game.setIsSecondCardFlipped(MemoryGame.SecondCardIsFlipped);
+                    isFlipped = true;
+                    animator.flipCard(cardFront, cardBack, 0L, null);
                     if(game.gameCheck(flippedCardId, this.id)){
                         game.gainScore();
+                        new Handler().postDelayed(() -> {
+                            game.setIsSecondCardFlipped(MemoryGame.SecondCardIsNotFlipped);
+                            game.setFlippedCardId(0);
+                        }, 900);
                     } else {
                         GameCard flippedCard = game.findGameCardById(flippedCardId);
-                        animator.flipCard(cardBack, cardFront, 2500L);
-                        animator.flipSecondCard(flippedCard.cardBack, flippedCard.cardFront, 2500L);
+                        animator.flipCard(cardBack, cardFront, 2500L, () -> {
+                            game.setIsSecondCardFlipped(MemoryGame.SecondCardIsNotFlipped);
+                            game.setFlippedCardId(0);
+                        });
+                        animator.flipSecondCard(flippedCard.cardBack, flippedCard.cardFront, 2500L, null);
                         this.unflip();
                         flippedCard.unflip();
                     }
-                    game.setFlippedCardId(0);
+
                 }
             }
         });

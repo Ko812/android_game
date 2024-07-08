@@ -3,6 +3,7 @@ package com.nusiss.android_game_ca.animators;
 import android.animation.Animator;
 import android.animation.AnimatorInflater;
 import android.animation.AnimatorSet;
+import android.os.Handler;
 import android.view.View;
 
 import com.nusiss.android_game_ca.R;
@@ -18,14 +19,6 @@ public class CardAnimator {
         this.scale = scale;
         this.frontCardAnimator = frontAnimator;
         this.backCardAnimator = backAnimator;
-
-    }
-
-    public void FlipFront(View cardFront){
-
-    }
-
-    public void FlipBack(View cardBack){
 
     }
 
@@ -49,18 +42,36 @@ public class CardAnimator {
         return backCardAnimator.clone();
     }
 
-    public void flipCard(View frontView, View backView, long delay){
-        frontView.postDelayed(() -> {
-            frontCardAnimator.setTarget(frontView);
-            frontCardAnimator.start();
-        }, delay);
-        backView.postDelayed(() -> {
-            backCardAnimator.setTarget(backView);
-            backCardAnimator.start();
-        }, delay);
+    public void flipCard(View frontView, View backView, long delay, FlipAnimationEndCallBack callback){
+        if(frontCardAnimator.isRunning() || backCardAnimator.isRunning()){
+            AnimatorSet secondFrontAnimator = getSecondFrontCardAnimator();
+            AnimatorSet secondBackAnimator = getSecondBackCardAnimator();
+            frontView.postDelayed(() -> {
+                secondFrontAnimator.setTarget(frontView);
+                secondFrontAnimator.start();
+            }, delay);
+            backView.postDelayed(() -> {
+                secondBackAnimator.setTarget(backView);
+                secondBackAnimator.start();
+            }, delay);
+        } else {
+            frontView.postDelayed(() -> {
+                frontCardAnimator.setTarget(frontView);
+                frontCardAnimator.start();
+            }, delay);
+            backView.postDelayed(() -> {
+                backCardAnimator.setTarget(backView);
+                backCardAnimator.start();
+            }, delay);
+        }
+        if(callback != null){
+            new Handler().postDelayed(() -> {
+                callback.callback();
+            }, delay);
+        }
     }
 
-    public void flipSecondCard(View frontView, View backView, long delay){
+    public void flipSecondCard(View frontView, View backView, long delay, FlipAnimationEndCallBack callback){
         AnimatorSet secondFrontAnimator = getSecondFrontCardAnimator();
         AnimatorSet secondBackAnimator = getSecondBackCardAnimator();
         frontView.postDelayed(() -> {
@@ -71,5 +82,14 @@ public class CardAnimator {
             secondBackAnimator.setTarget(backView);
             secondBackAnimator.start();
         }, delay);
+        if(callback != null){
+            new Handler().postDelayed(() -> {
+                callback.callback();
+            }, delay);
+        }
+    }
+
+    public interface FlipAnimationEndCallBack {
+        void callback();
     }
 }

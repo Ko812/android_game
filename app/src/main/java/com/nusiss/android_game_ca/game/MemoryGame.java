@@ -12,13 +12,8 @@ import android.util.Log;
 import android.widget.TextView;
 
 import com.nusiss.android_game_ca.R;
-import com.nusiss.android_game_ca.GameActivity;
 import com.nusiss.android_game_ca.animators.CardAnimator;
 
-import java.io.File;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.List;
 import java.util.Random;
 import java.util.function.Consumer;
@@ -30,11 +25,10 @@ public class MemoryGame {
     private List<GameCard> gameCards;
     private int currentScore;
     public int flippedCardId = 0;
+
+    private int isSecondCardFlipped = 0;
     public int secondsElapsed = 0;
-
-
     private TextView scoreBar;
-
     private ActionListener mActionListener;
     private CardAnimator cardAnimator;
     private Context context;
@@ -143,9 +137,7 @@ public class MemoryGame {
 
     public void gainScore(){
         currentScore++;
-
         mActionListener.onGainScore(currentScore);
-
     }
 
     public GameCard findGameCardById(int id){
@@ -229,4 +221,15 @@ public class MemoryGame {
         }
     }
 
+    public static final int SecondCardIsNotFlipped = 0;
+    public static final int SecondCardIsFlipped = 1;
+    public void setIsSecondCardFlipped(int val){
+        if(val == 0 || val == 1){
+            isSecondCardFlipped = val;
+        }
+    }
+
+    public int getIsSecondCardFlipped(){
+        return isSecondCardFlipped;
+    }
 }
