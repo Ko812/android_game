@@ -1,20 +1,28 @@
 package com.nusiss.android_game_ca.game;
 
+import android.app.Activity;
 import android.content.Context;
+
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+
 import android.media.MediaPlayer;
 import android.util.Log;
+
 import android.widget.TextView;
 
 import com.nusiss.android_game_ca.R;
 import com.nusiss.android_game_ca.GameActivity;
 import com.nusiss.android_game_ca.animators.CardAnimator;
 
+import java.io.File;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.List;
 import java.util.Random;
 import java.util.function.Consumer;
 
-import coil.ImageLoader;
-import coil.request.ImageRequest;
 
 public class MemoryGame {
 
@@ -23,12 +31,17 @@ public class MemoryGame {
     private int currentScore;
     public int flippedCardId = 0;
     public int secondsElapsed = 0;
+
+
+    private TextView scoreBar;
+
     private ActionListener mActionListener;
     private CardAnimator cardAnimator;
     private Context context;
     private MediaPlayer successSound;
     private MediaPlayer failureSound;
     private MediaPlayer victorySound;
+
 
     public interface ActionListener{
         void onGainScore(int score);
@@ -130,7 +143,9 @@ public class MemoryGame {
 
     public void gainScore(){
         currentScore++;
+
         mActionListener.onGainScore(currentScore);
+
     }
 
     public GameCard findGameCardById(int id){
@@ -141,10 +156,16 @@ public class MemoryGame {
                 .get();
     }
 
-    public void BindImagesToCard(Context context, ImageLoader loader, String[] urls){
+    public void BindImagesToCard(Activity context, String[] urls){
         for(GameCard card : gameCards){
-            ImageRequest.Builder builder = new ImageRequest.Builder(context).data(urls[card.getCardImageIndex()]);
-            card.bindImage(loader, builder);
+            new Thread(() -> {
+                try {
+                    Bitmap bm = BitmapFactory.decodeFile(urls[card.getCardImageIndex()]);
+                    card.bindImage(context, bm);
+                } catch (Exception e){
+                    e.printStackTrace();
+                }
+            }).start();
         }
     }
 
@@ -171,6 +192,9 @@ public class MemoryGame {
     public void lapsedOneSecond(){
         secondsElapsed++;
     }
+
+
+    private final String ua = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.106 Safari/537.36 OPR/38.0.2220.41";
 
     private void playSuccessSound() {
         if (successSound != null) {
@@ -204,4 +228,5 @@ public class MemoryGame {
             victorySound = null;
         }
     }
+
 }

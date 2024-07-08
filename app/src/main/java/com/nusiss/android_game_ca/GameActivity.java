@@ -33,11 +33,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import coil.ImageLoader;
+
 
 public class GameActivity extends AppCompatActivity implements MemoryGame.ActionListener {
 
-    private ImageLoader loader;
     private Map<Integer, Integer> cardPairIds = new HashMap<>();
     MemoryGame memoryGame;
     private CardAnimator cardAnimator;
@@ -103,7 +102,7 @@ public class GameActivity extends AppCompatActivity implements MemoryGame.Action
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
-        loader = new ImageLoader.Builder(this).build();
+
         MapCards();
         SetupAnimators();
 
@@ -143,8 +142,9 @@ public class GameActivity extends AppCompatActivity implements MemoryGame.Action
             String url3 = callerIntent.getStringExtra("url_3");
             String url4 = callerIntent.getStringExtra("url_4");
             String url5 = callerIntent.getStringExtra("url_5");
-            urls = new String[]{url0, url1, url2, url3, url4, url5};
-            memoryGame.BindImagesToCard(this, loader, urls);
+
+            memoryGame.BindImagesToCard(this, new String[]{url0, url1, url2, url3, url4, url5});
+
         }
 
     }
