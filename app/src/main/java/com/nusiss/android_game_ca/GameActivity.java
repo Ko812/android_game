@@ -1,16 +1,20 @@
 package com.nusiss.android_game_ca;
 
 import androidx.appcompat.app.AppCompatActivity;
+import android.media.MediaPlayer;
 
 import android.animation.Animator;
 import android.animation.AnimatorInflater;
 import android.animation.AnimatorSet;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -31,7 +35,7 @@ import java.util.Map;
 
 import coil.ImageLoader;
 
-public class GameActivity extends AppCompatActivity {
+public class GameActivity extends AppCompatActivity implements MemoryGame.ActionListener {
 
     private ImageLoader loader;
     private Map<Integer, Integer> cardPairIds = new HashMap<>();
@@ -42,6 +46,59 @@ public class GameActivity extends AppCompatActivity {
     private Button startBtn;
     private Button stopBtn;
     private Button resetBtn;
+    private Handler handler;
+
+    private TextView record;
+    private TextView tvUser;
+    private TextView scoreBar;
+    private Map<String, Integer> recordMap = new HashMap<>();
+    private boolean isGaming = false;
+    private String currentUser;
+    private String[] urls;
+    private MediaPlayer victorySound;
+
+    @Override
+    public void onGainScore(int score) {
+        scoreBar.setText("Matched: "+score+" of 6");
+        if(score == 6){
+            startBtn.setEnabled(true);
+            stopBtn.setEnabled(false);
+            isGaming = false;
+            scoreBar.setText("Matched: 6 of 6.");
+            if(handler != null){
+                handler.removeCallbacksAndMessages(null);
+            }
+            recordMap.put(currentUser, memoryGame.getSecondsElapsed());
+            //找出赢家，用时短的获胜
+            //Find the winner. The one with the shortest time wins.
+            String winUser = "";
+            int minValue = Integer.MAX_VALUE;
+
+            StringBuilder stringBuilder = new StringBuilder();
+            for (Map.Entry<String, Integer> entry : recordMap.entrySet()) {
+                if (entry.getValue() <= minValue) {
+                    minValue = entry.getValue();
+                    winUser = entry.getKey();
+                }
+                stringBuilder.append("Player：").append(entry.getKey()).append(getFormatTime(entry.getValue()))
+                        .append(",");
+            }
+            String result = stringBuilder.toString();
+            if (result.endsWith(",")) {
+                result = result.substring(0, result.length() - 1);
+            }
+            record.setText(result + " win is " + winUser);
+
+            onGameWin();
+        }
+    }
+
+    public void onGameWin() {
+        if (victorySound != null) {
+            victorySound.start();
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,10 +106,14 @@ public class GameActivity extends AppCompatActivity {
         loader = new ImageLoader.Builder(this).build();
         MapCards();
         SetupAnimators();
+
+        victorySound = MediaPlayer.create(this, R.raw.victory_sound);
+
         memoryGame = new MemoryGame(
+                this,
                 BuildGameCards(cardAnimator.getScale()),  // initialized 12 game cards
                 (int)(LocalDateTime.now().toEpochSecond(ZoneOffset.ofHours(2)) % 1000), // seed for randomizer
-                (TextView)findViewById(R.id.scoreBar) // status bar view
+                this // status bar view
         );
         memoryGame.SetupCardClickListener(cardAnimator);
         startBtn = findViewById(R.id.startBtn);
@@ -60,9 +121,13 @@ public class GameActivity extends AppCompatActivity {
         stopBtn = findViewById(R.id.stopBtn);
         stopBtn.setOnClickListener(this::clickStopBtn);
         resetBtn = findViewById(R.id.resetBtn);
+        resetBtn.setOnClickListener(this::clickResetBtn);
         stopBtn.setOnClickListener(this::clickStopBtn);
         returnBtn = findViewById(R.id.returnBtn);
         returnBtn.setOnClickListener(this::clickReturnBtn);
+        record = findViewById(R.id.record);
+        tvUser = findViewById(R.id.currentUser);
+        scoreBar = findViewById(R.id.scoreBar);
     }
 
 
@@ -78,7 +143,8 @@ public class GameActivity extends AppCompatActivity {
             String url3 = callerIntent.getStringExtra("url_3");
             String url4 = callerIntent.getStringExtra("url_4");
             String url5 = callerIntent.getStringExtra("url_5");
-            memoryGame.BindImagesToCard(this, loader, new String[]{url0, url1, url2, url3, url4, url5});
+            urls = new String[]{url0, url1, url2, url3, url4, url5};
+            memoryGame.BindImagesToCard(this, loader, urls);
         }
 
     }
@@ -122,14 +188,47 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private void clickReturnBtn(View view){
-
+        finish();
     }
 
     private void clickStartBtn(View view){
         // enable stop button
-        stopBtn.setEnabled(true);
-        startBtn.setEnabled(false);
-        startTimer();
+        if (isGaming) {
+            startBtn.setEnabled(false);
+            startTimer();
+        } else {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("Please enter the player's name");
+
+            final EditText input = new EditText(this);
+            builder.setView(input);
+
+            // 设置对话框按钮
+            // Setting up the dialogue box buttons
+            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    currentUser = input.getText().toString();
+                    recordMap.put(currentUser, 0);
+                    isGaming = true;
+                    startBtn.setEnabled(false);
+                    tvUser.setText("Current Player：" + currentUser);
+                    memoryGame.Start();
+                    memoryGame.BindImagesToCard(GameActivity.this, loader, urls);
+                    startTimer();
+                }
+            });
+
+            builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.cancel();
+                }
+            });
+
+            AlertDialog alertDialog = builder.create();
+            alertDialog.show();
+        }
     }
 
     private void clickResetBtn(View view){
@@ -144,8 +243,6 @@ public class GameActivity extends AppCompatActivity {
         startBtn.setEnabled(true);
         stopBtn.setEnabled(false);
     }
-
-    private Handler handler;
     private void startTimer() {
         final TextView txtTime = findViewById(R.id.timeElapsedText);
         if(handler == null){
@@ -160,5 +257,29 @@ public class GameActivity extends AppCompatActivity {
             }
         });
     }
+    public String getFormatTime(int seconds){
+        int minutes = seconds / 60;
+        int remainingSeconds = seconds % 60;
 
+        // Formatted output
+        String formattedTime;
+        if (minutes > 0) {
+            formattedTime = String.format("%d:%02d", minutes, remainingSeconds);
+        } else {
+            formattedTime = String.format("%d", remainingSeconds);
+        }
+        return formattedTime;
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (memoryGame != null) {
+            memoryGame.release();  // Release MediaPlayer resources
+        }
+        if (victorySound != null) {
+            victorySound.release(); // 释放胜利音效资源
+            victorySound = null;
+        }
+    }
 }

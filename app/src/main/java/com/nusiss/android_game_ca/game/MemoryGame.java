@@ -1,12 +1,17 @@
 package com.nusiss.android_game_ca.game;
 
 import android.content.Context;
+import android.media.MediaPlayer;
+import android.util.Log;
 import android.widget.TextView;
 
+import com.nusiss.android_game_ca.R;
+import com.nusiss.android_game_ca.GameActivity;
 import com.nusiss.android_game_ca.animators.CardAnimator;
 
 import java.util.List;
 import java.util.Random;
+import java.util.function.Consumer;
 
 import coil.ImageLoader;
 import coil.request.ImageRequest;
@@ -18,14 +23,32 @@ public class MemoryGame {
     private int currentScore;
     public int flippedCardId = 0;
     public int secondsElapsed = 0;
-    private TextView scoreBar;
+    private ActionListener mActionListener;
+    private CardAnimator cardAnimator;
+    private Context context;
+    private MediaPlayer successSound;
+    private MediaPlayer failureSound;
+    private MediaPlayer victorySound;
 
-    public MemoryGame(List<GameCard> gameCards, int seed, TextView scoreBar)  {
+    public interface ActionListener{
+        void onGainScore(int score);
+        void onGameWin();
+    }
+
+    public MemoryGame(Context context, List<GameCard> gameCards, int seed, ActionListener actionListener)  {
+        this.context = context;
         this.gameCards = gameCards;
         this.rand = new Random(seed);
         this.currentScore = 0;
         this.flippedCardId = 0;
-        this.scoreBar = scoreBar;
+        this.mActionListener = actionListener;
+        initializeSounds();
+    }
+
+    private void initializeSounds() {
+        successSound = MediaPlayer.create(context, R.raw.success_sound);
+        failureSound = MediaPlayer.create(context, R.raw.failure_sound);
+        victorySound = MediaPlayer.create(context, R.raw.victory_sound);
     }
 
     private void Initialize(){
@@ -37,6 +60,12 @@ public class MemoryGame {
             } while (paired(imageIndices[randomImage]));
             card.setCardImageIndex(imageIndices[randomImage]);
         }
+        gameCards.forEach(new Consumer<GameCard>() {
+            @Override
+            public void accept(GameCard gameCard) {
+                Log.d("aa", gameCard.getCardImageIndex() +"");
+            }
+        });
     }
 
     private boolean paired(int imageIndex){
@@ -60,13 +89,28 @@ public class MemoryGame {
             if(card.isFlipped){
                 card.unflip();
             }
+            if (card.getCardImageIndex() != -1) {
+                card.cardFront.setRotationY(0);
+                card.cardFront.setAlpha(1.0f);
+                card.cardBack.setRotationY(0);
+                card.cardBack.setAlpha(0.0f);
+                card.setCardImageIndex(-1);
+            }
         }
     }
 
     public boolean gameCheck(int card1Id, int card2Id){
         GameCard card1 = findGameCardById(card1Id);
         GameCard card2 = findGameCardById(card2Id);
-        return card1.getCardImageIndex() == card2.getCardImageIndex();
+        boolean isMatch = card1.getCardImageIndex() == card2.getCardImageIndex();
+
+        if (isMatch) {
+            playSuccessSound();
+        } else {
+            playFailureSound();
+        }
+
+        return isMatch;
     }
 
     public void SetupCardClickListener(CardAnimator animator){
@@ -86,10 +130,7 @@ public class MemoryGame {
 
     public void gainScore(){
         currentScore++;
-        scoreBar.setText("Matched: "+currentScore+" of 6");
-        if(currentScore == 6){
-            scoreBar.setText("Matched: 6 of 6. You Won!");
-        }
+        mActionListener.onGainScore(currentScore);
     }
 
     public GameCard findGameCardById(int id){
@@ -129,5 +170,38 @@ public class MemoryGame {
 
     public void lapsedOneSecond(){
         secondsElapsed++;
+    }
+
+    private void playSuccessSound() {
+        if (successSound != null) {
+            successSound.start();
+        }
+    }
+
+    private void playFailureSound() {
+        if (failureSound != null) {
+            failureSound.start();
+        }
+    }
+
+    private void playVictorySound() {
+        if (victorySound != null) {
+            victorySound.start();
+        }
+    }
+
+    public void release() {
+        if (successSound != null) {
+            successSound.release();
+            successSound = null;
+        }
+        if (failureSound != null) {
+            failureSound.release();
+            failureSound = null;
+        }
+        if (victorySound != null) {
+            victorySound.release();
+            victorySound = null;
+        }
     }
 }

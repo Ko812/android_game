@@ -111,7 +111,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void run() {
                 try {
-                    Document doc = Jsoup.connect(url).get();
+                    Document doc = Jsoup.connect("https://stocksnap.io").get();
                     Elements links = doc.select("img[src]");
                     for (Element link : links) {
                         if(link.attr("src").startsWith("https://cdn.") && link.attr("src").endsWith("jpg")){
