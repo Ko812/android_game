@@ -21,7 +21,6 @@ import android.widget.Toast;
 import com.google.android.material.textfield.TextInputEditText;
 import com.nusiss.android_game_ca.adapters.GridAdapter;
 
-
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -38,7 +37,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-
 
 
 
@@ -79,6 +77,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             gridView.setOnItemClickListener(this::onItemClick);
         }
     }
+
     @Override
     public void onClick(View view){
         int id = view.getId();
@@ -88,7 +87,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             tryFetch(url);
             InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-
         } else if(id == R.id.startGameButton){
             if(selectedUrls.size() < 6){
                 Toast.makeText(this, "Require 6 images to start game.", Toast.LENGTH_LONG).show();
@@ -173,12 +171,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         hideProgressBar();
                         adapter.setUrls(urls);
                         adapter.notifyDataSetChanged();
-
                         // Hide download complete text and inform user to select images
                         showSelectionInstructions();
                         // Check and refresh game start button visibility
                         updateStartGameButtonVisibility();
-
                         new Handler().postDelayed(new Runnable(){
                             @Override
                             public void run(){
@@ -264,4 +260,5 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         String countText = selectedCount + " of " + totalImages + " selected";
         selectedCountTextView.setText(countText);
     }
+
 }
