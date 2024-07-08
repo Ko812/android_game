@@ -1,17 +1,15 @@
 package com.nusiss.android_game_ca.game;
 
 
+import android.app.Activity;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.nusiss.android_game_ca.animators.CardAnimator;
 
-import java.util.List;
-
-import coil.ImageLoader;
-import coil.request.ImageRequest;
 
 public class GameCard {
     private int id;
@@ -84,8 +82,10 @@ public class GameCard {
         this.imageIndex = index;
     }
 
-    public void bindImage (ImageLoader loader, ImageRequest.Builder builder){
-        loader.enqueue(builder.target(cardBack).build());
+    public void bindImage (Activity context, Bitmap bitmap){
+        context.runOnUiThread(() -> {
+            cardBack.setImageBitmap(bitmap);
+        });
     }
 
 }

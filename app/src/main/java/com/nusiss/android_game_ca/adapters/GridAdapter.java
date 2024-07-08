@@ -5,6 +5,10 @@ import static java.lang.Math.min;
 import android.app.Activity;
 import android.content.Context;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,38 +17,37 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.nusiss.android_game_ca.R;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import coil.ImageLoader;
-import coil.request.ImageRequest;
-import kotlinx.coroutines.Job;
 
 
 public class GridAdapter extends BaseAdapter {
 
-    private Context context;
-    private ImageLoader loader;
+    private Activity context;
     private List<String> urls;
-    private List<Job> loadingJobs;
+    private Handler handler = new Handler(Looper.getMainLooper());
 
-    private List<Integer> viewIds = new ArrayList<>();
-
-    public GridAdapter(Context context, List<String> urls){
+    public GridAdapter(Activity context, List<String> urls){
         super();
         this.context = context;
         this.urls = urls;
-        this.loader = new ImageLoader.Builder(context).build();
-        this.loadingJobs = new ArrayList<>();
     }
-
 
     @Override
     public int getCount() {
-        return min(urls.size(),20) ;
+        return urls.size() ;
     }
 
     @Override
@@ -64,33 +67,26 @@ public class GridAdapter extends BaseAdapter {
             view = inflater.inflate(R.layout.image, parent, false);
         }
         ImageView imgView = (ImageView) view;
-        Log.d("ADAPTER", "Adapter getView called. Loading view at pos " + pos);
-        ImageRequest imageRequest = new ImageRequest
-                .Builder(context)
-                .data(urls.get(pos))
-                .target(imgView)
-                .crossfade(true)
-                .build();
-        loader.enqueue(imageRequest);
+
+        String imageUrl = urls.get(pos);
+        new Thread(() -> {
+            try {
+              Bitmap bitmap = BitmapFactory.decodeFile(imageUrl);
+              handler.post(() -> {
+                  imgView.setImageBitmap(bitmap);
+              });
+
+            } catch (Exception e){
+                e.printStackTrace();
+            }
+        }).start();
 
         return imgView;
     }
 
-    private boolean loadingComplete(){
-        Log.d("CheckingLoadProgess", "Load progress: "+ loadingJobs.stream().map(j -> j.isCompleted()).filter(c -> c).count() + " jobs completed, out of " + loadingJobs.stream().count());
-        return loadingJobs
-                .stream()
-                .map(j -> j.isCompleted())
-                .reduce((c1, c2) -> c1 && c2)
-                .get();
-    }
-
-    public List<Integer> getViewIds(){
-        return viewIds;
-    }
-
-
     public void setUrls(List<String> urls){
         this.urls = urls;
     }
+
+
 }
