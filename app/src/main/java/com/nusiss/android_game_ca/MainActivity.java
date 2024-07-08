@@ -96,7 +96,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             tryFetch(url);
             InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-            showSelectedCountTextView();    //only pop up after clicking "Fetch"
         } else if(id == R.id.startGameButton){
             if(selectedUrls.size() < 6){
                 Toast.makeText(this, "Require 6 images to start game.", Toast.LENGTH_LONG).show();
@@ -161,6 +160,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         adapter.setUrls(urls);
                         adapter.notifyDataSetChanged();
                         Log.d("ADAPTER", "Adapter changed");
+
+                        // Adding a delay to ensure all images are loaded before showing the message
+                        new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                showSelectedCountTextView();
+                            }
+                        }, 2000); // Delay of 500 milliseconds (0.5 seconds)
                     }
                 });
             }
